@@ -1,0 +1,1 @@
+Get-ADReplicationSite -Filter * | Select Name | %{Get-Vm -Name "$($_.Name)-DC*" | Export-Csv -Path C:\Users\scchristopher.frew\Desktop\newDC.csv -Append -NoTypeInformation -Encoding ASCII; "Getting VMs for $($_.Name)..."}

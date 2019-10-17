@@ -1,0 +1,3 @@
+﻿Get-ADComputer -Properties cn,OperatingSystem,ipv4address,CanonicalName,Description -Filter "OperatingSystem -like '*2008*'" -SearchBase "DC=ntschools,dc=net" | export-csv -Path c:\manage\287\2008Servers.csv -NoTypeInformation
+Get-ADComputer -Properties cn,OperatingSystem,ipv4address,CanonicalName,Description -Filter "OperatingSystem -like '*2003*'" -SearchBase "DC=ntschools,dc=net" | export-csv -Path c:\manage\287\2003Servers.csv -NoTypeInformation
+Get-ADComputer -Properties cn,OperatingSystem,ipv4address,CanonicalName,Description -Filter "OperatingSystem -NotLike '*'" -SearchBase "DC=ntschools,dc=net"   | export-csv -Path C:\Manage\287\unsureServers.csv -NoTypeInformation
