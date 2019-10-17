@@ -1,3 +1,4 @@
+# This function will audit an environment for empty sites (Sites with no subnets)
 function Get-ADSites {
     Param(
 
