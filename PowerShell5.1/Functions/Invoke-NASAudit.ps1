@@ -1,7 +1,7 @@
 # This function was created to audit NAS drives and compare them against Vmware datastores
 # it had to handle some interesting edge cases such as consolidated sites and sites with no NAS
 
-function Get-FS1Drives {
+function Invoke-NASAudit {
     Param(
         [PSCredential]$Credential,
         [string]$ExportPath
