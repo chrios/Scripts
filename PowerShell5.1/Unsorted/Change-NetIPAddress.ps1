@@ -1,8 +1,8 @@
 ﻿$configureIPAddress = 'Get-NetIPAddress -IPAddress <newIP> | Remove-NetIPAddress -confirm:$false; New-NetIPAddress -IPAddress <oldIP> -InterfaceAlias Ethernet0; ipconfig /registerdns'
 
-$csv = Import-Csv C:\Users\scchristopher.frew\Desktop\revertREVERT.csv
+$csv = Import-Csv revertREVERT.csv
 
-$domainCreds = Get-Credential -Message "Domain Creds" -UserName 'ntschools\admcfrew'
+$domainCreds = Get-Credential -Message "Domain Creds"
 
 Connect-VIServer -Server drwnt-vc2.ntschools.net -Credential $domainCreds
 
