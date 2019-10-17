@@ -1,0 +1,2 @@
+﻿ups1.domain.name
+ups2.domain.name
