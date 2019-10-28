@@ -3,6 +3,7 @@
 #
 # Check-NASSpace
 # Create-NewNASFolder
+
 <#
 Verify that required space exists on Datastore before proceeding.
 Expand F: volume on FS1 by amount required for E:\ drive files:
@@ -10,20 +11,36 @@ Expand F: volume on FS1 by amount required for E:\ drive files:
 - Locate site FS1 server.
 - Right Click, Edit Settings
 - Change size of 1024GB disk, increasing by required space
-- Run diskmgmt.msc as admin
-- Connect to FS1
-- Right click on expanded drive, click 'Extend Volume'
-- Proceed through wizard until finish
 #>
+
+# Invoke-UpdateAndExpandDisk
 # Invoke-PreSeedFiles
 # Create-SMBShares
 
 
 # At 4:30pm, for each site:
 # 
-# Invoke-FinalCopyFiles
 # Invoke-SwapDFSFolderTarget
+# Invoke-FinalCopyFiles
 # Invoke-PowerDownNAS
+
+function Invoke-UpdateAndExpandDisk {
+    Param(
+        [string]$siteCode,
+        [pscredential]$Credential
+    )
+    Begin {
+        $scriptBlock = {
+            Update-HostStorageCache
+            $sizeMax = (Get-PartitionSupportedSize -DriveLetter F).SizeMax
+            Resize-Partition -DriveLetter F -Size $sizeMax
+        }
+        $fsName = $siteCode + '-FS1'
+    }
+    Process {
+        Invoke-Command -ComputerName $fsName -Credential $Credential -ScriptBlock $scriptBlock
+    }
+}
 
 function Check-NASSpace {
     Param(
@@ -55,17 +72,14 @@ function Create-NewNASFolder {
 
 function Invoke-PreSeedFiles {
     Param(
-        [string]$siteCode,
-        [pscredential]$Credential
+        [string]$siteCode
     )
     Begin {
-        $script = 'robocopy e:\NASData \\<schoolcode>-fs1\f$\NASdata /TEE /S /E /COPY:DATSO /NP /XO /R:0 /W:0 /LOG:C:\admin\robocopy-log.txt'
+        $script = 'robocopy e:\NASData \\<schoolcode>-fs1\f$\NASdata /S /E /COPY:DATSO /NP /XO /R:0 /W:0 /TEE /LOG:C:\users\admcfrew\robocopy-log.txt'
         $script = $script.replace('<schoolcode>', $siteCode)
-        $scriptBlock = [Scriptblock]::Create($script)
-        $nasName = $siteCode + '-NA1'
     }
     Process {
-        Invoke-Command -ComputerName $nasName -Credential $Credential -ScriptBlock $scriptBlock
+        return $script
     }
 }
 
@@ -88,30 +102,31 @@ function Create-SMBShares {
 
 function Invoke-FinalCopyFiles {
     Param(
-        [string]$siteCode,
-        [pscredential]$Credential
+        [string]$siteCode
     )
     Begin {
-        $script = 'robocopy e:\NASData \\<schoolcode>-fs1\f$\NASdata /TEE /S /E /COPY:DATSO /NP /XO /R:0 /W:0 /LOG:C:\admin\robocopy-log-final.txt'
+        $script = 'robocopy e:\NASData \\<schoolcode>-fs1\f$\NASdata /S /E /COPY:DATSO /NP /XO /R:0 /W:0 /TEE /LOG:C:\users\admcfrew\robocopy-log-final.txt'
         $script = $script.replace('<schoolcode>', $siteCode)
-        $scriptBlock = [Scriptblock]::Create($script)
-        $nasName = $siteCode + '-NA1'
+        
     }
     Process {
-        Invoke-Command -ComputerName $nasName -Credential $Credential -ScriptBlock $scriptBlock
+        return $script
     }
 }
 
 function Invoke-SwapDFSFolderTarget {
     Param(
-        [string]$siteCode,
-        [pscredential]$Credential
+        [string]$siteCode
     )
     Begin {
     }
     Process {
-        Set-DfsnFolderTarget  -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Staff NoBackup" -TargetPath "\\$siteCode-FS1.ntschools.net\Staff NoBackup"
-        Set-DfsnFolderTarget  -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Student NoBackup" -TargetPath "\\$siteCode-FS1.ntschools.net\Student NoBackup"
+        New-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Staff NoBackup" -TargetPath "\\$siteCode-fs1.ntschools.net\Staff NoBackup"
+        New-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Student NoBackup" -TargetPath "\\$siteCode-fs1.ntschools.net\Student NoBackup"
+        Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Staff NoBackup" -TargetPath "\\$siteCode-NA1.ntschools.net\Staff NoBackup"
+        Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Student NoBackup" -TargetPath "\\$siteCode-NA1.ntschools.net\Student NoBackup"
+        Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Staff NoBackup" -TargetPath "\\$siteCode-NA1\Staff NoBackup"
+        Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Student NoBackup" -TargetPath "\\$siteCode-NA1\Student NoBackup"
     }
 }
 
@@ -127,5 +142,3 @@ function Invoke-PowerDownNAS {
         Stop-Computer -ComputerName $nasName -Credential $Credential
     }
 }
-
-# At 4:30pm
