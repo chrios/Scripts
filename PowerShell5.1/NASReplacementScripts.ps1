@@ -121,8 +121,9 @@ function Invoke-SwapDFSFolderTarget {
     Begin {
     }
     Process {
-        New-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Staff NoBackup" -TargetPath "\\$siteCode-fs1.ntschools.net\Staff NoBackup"
-        New-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Student NoBackup" -TargetPath "\\$siteCode-fs1.ntschools.net\Student NoBackup"
+        $site = $siteCode.ToLower()
+        New-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Staff NoBackup" -TargetPath "\\$site-fs1.ntschools.net\Staff NoBackup"
+        New-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\NAS\Student NoBackup" -TargetPath "\\$site-fs1.ntschools.net\Student NoBackup"
         Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Staff NoBackup" -TargetPath "\\$siteCode-NA1.ntschools.net\Staff NoBackup"
         Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Student NoBackup" -TargetPath "\\$siteCode-NA1.ntschools.net\Student NoBackup"
         Remove-DfsnFolderTarget -Path "\\ntschools.net\SchoolsData\$siteCode\Unmanaged Data\Staff NoBackup" -TargetPath "\\$siteCode-NA1\Staff NoBackup"
