@@ -19,9 +19,12 @@ if ($Backout -eq $true) {
         if (Get-DnsServerZone -Name "corp.ntgov") {
             "DNS Zone corp.ntgov already present"
             Set-DnsServerConditionalForwarderZone -Name "corp.ntgov" -MasterServers 150.191.240.2,150.191.250.2
+            Set-DnsServerConditionalForwarderZone -Name "20.172.in-addr.arpa" -MasterServers 150.191.240.2,150.191.250.2
         } else {
             "DNS Zone corp.ntgov not present. Recreating..."
             Add-DnsServerConditionalForwarderZone -Name "corp.ntgov" -MasterServers 150.191.240.2,150.191.250.2
+            Add-DnsServerConditionalForwarderZone -Name "20.172.in-addr.arpa" -MasterServers 150.191.240.2,150.191.250.2
+            
         }
     }
     # Apply change in conditional forwarder zones to all core DCs
@@ -39,6 +42,8 @@ if ($Backout -eq $true) {
         Set-DnsServerConditionalForwarderZone -Name "corp.ntgov" -MasterServers 10.2.35.22,10.2.35.23
         # Add conditional forwarder for cprod.corp.ntgov
         Add-DnsServerConditionalForwarderZone -Name "cprod.corp.ntgov" -MasterServers 10.2.35.20,10.2.35.21
+        # Update conditional forwarder for 20.172.in-addr.arpa
+        Set-DnsServerConditionalForwarderZone -Name "20.172.in-addr.arpa" -MasterServers 10.2.35.22,10.2.35.23
     }
 
     # Apply change in conditional forwarder zones to all core DCs
